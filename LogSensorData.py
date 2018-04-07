@@ -15,7 +15,7 @@ hx2 = HX711(5, 6)
 sensor = Adafruit_DHT.DHT11
 gpio = 4
 
-sensors
+sensors = Adafruit_DHT.DHT11
 
 hx.set_reading_format("LSB", "MSB")
 hx2.set_reading_format("LSB", "MSB")
