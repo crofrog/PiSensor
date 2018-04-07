@@ -4,18 +4,55 @@ import time
 import sys
 from hx711 import HX711
 
+class hx:
+    scale = 0
+    def __init_(r,c):
+        scale = r*c
+
+
+class scales:
+
+class sensors:
+    hum = 70
+    temp = 80
+    scale1 = 10000
+    scale2 = 20000
+    #Get Grams
+    def get_grams():
+    #Get Oz
+    #Get Temp
+    #Get Humdity
+
+    #initalize Sensors
+    def __init__(self):
+
+
+
+
+
 def cleanAndExit():
     print "Cleaning..."
     GPIO.cleanup()
     print "Bye!"
     sys.exit()
 
-hx = HX711(20, 21)
-hx2 = HX711(5, 6)
-sensor = Adafruit_DHT.DHT11
-gpio = 4
-
-sensors = Adafruit_DHT.DHT11
+sensors = {
+    climSensor = {
+        sensor = Adafruit_DHT.DHT11,
+        humidity = 0;
+        temperature = 0;
+    },
+    scales = [
+        {
+            hx = HX711(20, 21),
+            oz = 0
+        },
+        {
+            hx = HX711(5, 6),
+            oz = 0
+        }
+    ]
+}
 
 hx.set_reading_format("LSB", "MSB")
 hx2.set_reading_format("LSB", "MSB")
