@@ -25,7 +25,7 @@ def main():
     while True:
         weight = []
         try:
-            humidity, temperature = Adafruit_DHT.read_retry(sensor, 4)
+            humidity, temperature = climSensor.read_retry(sensor, 4)
             for hx in hxSensors:
                 hx.reset()
                 weight.append(hx.get_weight())
