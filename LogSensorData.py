@@ -8,6 +8,7 @@ import json
 import pprint
 import argparse
 import sys
+import datetime
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -74,11 +75,13 @@ def main():
                 'urn2': round(weight[1],0),
                 'humidity': round(humidity,1),
                 'temperature': round(temperature,1),
-                'time': datetime.datetime.utcnow()
+                'time': str(datetime.datetime.utcnow())
             }
             #prints json
+            print(json.dumps(sensorResult))
             with open('/var/log/covfefe/sensorData.json', 'a') as dataFile:
-                json.dumps(sensorResult, dataFile)
+                print(json.dumps(sensorResult), file=dataFile)
+                dataFile.flush()
                 dataFile.close()
             #pp.pprint(weight)
             #prints the same line with better formatting
