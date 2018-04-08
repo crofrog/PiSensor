@@ -1,47 +1,95 @@
+#!/usr/bin/env python3
 import RPi.GPIO as GPIO
 import Adafruit_DHT
 import time
 import sys
 from hx711 import HX711
+import json
+import pprint
+import argparse
+import sys
+import datetime
+
+pp = pprint.PrettyPrinter(indent=4)
 
 def cleanAndExit():
-    print "Cleaning..."
+    print("Cleaning...")
     GPIO.cleanup()
-    print "Bye!"
+    print("Bye!")
     sys.exit()
 
-hx = HX711(20, 21)
-hx2 = HX711(5, 6)
-sensor = Adafruit_DHT.DHT11
-gpio = 4
+def initializeHX(dout,pd_sck):
+    hxSensor = HX711(dout,pd_sck)
+    hxSensor.tare()
+    convertUnit = 406.773/0.03527396
+    hxSensor.set_reference_unit(convertUnit)
+    hxSensor.set_reading_format("LSB", "MSB")
+    return hxSensor
 
-sensors = Adafruit_DHT.DHT11
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tare", action='store_true', help="Switch to generate and store scale tare")
+    args = parser.parse_args()
+    hxSensors = [initializeHX(20, 21), initializeHX(5, 6)]
 
-hx.set_reading_format("LSB", "MSB")
-hx2.set_reading_format("LSB", "MSB")
+    sensorSettings = {}
+    if (args.tare):
+        i=0
+        for hx in hxSensors:
+            hxKey = 'hx{}'.format(i)
+            sensorSettings.update({
+                hxKey: {
+                    'offset': hx.get_offset()[0],
+                    'REFERENCE_UNIT': hx.get_reference_unit()
+                }
+            })
+            pp.pprint(sensorSettings)
+            i += 1
+        with open('settings.json', 'w') as settingsFile:
+            json.dump(sensorSettings, settingsFile, indent=4, separators=(',\n', ': '))
+            settingsFile.close()
+            sys.exit(0)
+    else:
+        with open('settings.json', 'r') as settingsFile:
+            sensorSettings = json.load(settingsFile)
+            settingsFile.close()
+        i = 0
+        for hx in hxSensors:
+            hxKey = 'hx{}'.format(i)
+            hx.set_offset(sensorSettings[hxKey]['offset'])
+            hx.set_reference_unit(sensorSettings[hxKey]['REFERENCE_UNIT'])
+            i += 1
 
- 
-hx.reset()
-hx.tare()
-hx2.reset()
-hx2.tare()
+    climSensor = Adafruit_DHT.DHT11
+    while True:
+        weight = []
+        try:
+            humidity, temperature = Adafruit_DHT.read_retry(climSensor, 4)
+            temperature = temperature*1.8+32
+            for hx in hxSensors:
+                hx.reset()
+                val = hx.get_weight(5)[0]
+                weight.append(abs(val))
+            sensorResult = {
+                'urn1':  round(weight[0],0),
+                'urn2': round(weight[1],0),
+                'humidity': round(humidity,1),
+                'temperature': round(temperature,1),
+                'time': str(datetime.datetime.utcnow())
+            }
+            #prints json
+            print(json.dumps(sensorResult))
+            with open('/var/log/covfefe/sensorData.json', 'a') as dataFile:
+                print(json.dumps(sensorResult), file=dataFile)
+                dataFile.flush()
+                dataFile.close()
+            #pp.pprint(weight)
+            #prints the same line with better formatting
+            #print('Urn 1={:1.0f}oz, Urn 2={:1.0f}oz, {:0.1f}, {:0.1f}'.format(weight[0],weight[1],temperature,humidity))
+            #print 'Urn 1=', oz, 'oz, Urn 2=', oz2, 'oz', ('{0:0.1f}, {1:0.1f}'.format(temperature, humidity))
+            time.sleep(5)
+        except (KeyboardInterrupt, SystemExit):
+            cleanAndExit()
 
-while True:
-    try:
-        humidity, temperature = Adafruit_DHT.read_retry(sensor, gpio)
-        val = hx.get_weight(5)
-        grams = val/406.773
-        oz=grams/35.274
-        oz=round(oz,0)
-        val2 = hx2.get_weight(5)
-        grams2 = val2/406.773
-        oz2=grams2/35.274
-        oz2=round(oz2,0)
-        print 'Urn 1=', oz, 'oz, Urn 2=', oz2, 'oz', ('{0:0.1f}, {1:0.1f}'.format(temperature, humidity))
-        hx.power_down()
-        hx2.power_down()
-        hx.power_up()
-        hx2.power_up()
-        time.sleep(5.0)
-    except (KeyboardInterrupt, SystemExit):
-        cleanAndExit()
+if __name__ == "__main__":
+    main()
