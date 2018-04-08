@@ -43,13 +43,13 @@ def main():
                 }
             })
             i += 1
-        with open('settings.json', 'w') as settings:
-            json.dump(sensorSettings, outfile)
+        with open('settings.json', 'w') as settingsFile:
+            json.dump(sensorSettings, settingsFile)
             settings.close()
             sys.exit(0)
     else:
-        with open('settings.json', 'r') as settings:
-            sensorSettings = json.load(settings)
+        with open('settings.json', 'r') as settingsFile:
+            sensorSettings = json.load(settingsFile)
             settings.close()
         i = 0
         for hx in hxSensors:
