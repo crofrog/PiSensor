@@ -38,7 +38,7 @@ def main():
             hxKey = 'hx{}'.format(i)
             sensorSettings[hxKey]['offset'] = hx.offset
             sensorSettings[hxKey]['REFERENCE_UNIT'] = hx.REFERENCE_UNIT
-            i++
+            i += 1
         with open('settings.json', 'w') as settings:
             json.dump(sensorSettings, outfile)
             settings.close()
@@ -52,6 +52,7 @@ def main():
             hxKey = 'hx{}'.format(i)
             hx.set_offset(sensorSettings[hxKey]['offset'])
             hx.set_reference_unit(sensorSettings[hxKey]['REFERENCE_UNIT'])
+            i += 1
 
     climSensor = Adafruit_DHT.DHT11
     while True:
