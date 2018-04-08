@@ -38,19 +38,20 @@ def main():
             hxKey = 'hx{}'.format(i)
             sensorSettings.update({
                 hxKey: {
-                    'offset': hx.get_offset(),
+                    'offset': hx.get_offset()[0],
                     'REFERENCE_UNIT': hx.get_reference_unit()
                 }
             })
+            pp.pprint(sensorSettings)
             i += 1
         with open('settings.json', 'w') as settingsFile:
-            json.dump(sensorSettings, settingsFile)
-            settings.close()
+            json.dump(sensorSettings, settingsFile, indent=4, separators=(',\n', ': '))
+            settingsFile.close()
             sys.exit(0)
     else:
         with open('settings.json', 'r') as settingsFile:
             sensorSettings = json.load(settingsFile)
-            settings.close()
+            settingsFile.close()
         i = 0
         for hx in hxSensors:
             hxKey = 'hx{}'.format(i)
