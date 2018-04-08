@@ -27,8 +27,8 @@ def initializeHX(dout,pd_sck):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--tare", help="Switch to generate and store scale tare")
-    parser.parse_args()
+    parser.add_argument("--tare", action='store_true', help="Switch to generate and store scale tare")
+    args = parser.parse_args()
     hxSensors = [initializeHX(20, 21), initializeHX(5, 6)]
 
     sensorSettings = {}
