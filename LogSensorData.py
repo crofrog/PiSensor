@@ -72,15 +72,18 @@ def main():
                 'urn1':  round(weight[0],0),
                 'urn2': round(weight[1],0),
                 'humidity': round(humidity,1),
-                'temperature': round(temperature,1)
+                'temperature': round(temperature,1),
+                'time': datetime.datetime.utcnow()
             }
             #prints json
-            print(json.dumps(sensorResult))
+            with open('/var/log/covfefe/sensorData.json', 'a') as dataFile:
+                json.dumps(sensorResult, dataFile)
+                dataFile.close()
             #pp.pprint(weight)
             #prints the same line with better formatting
-            print('Urn 1={:1.0f}oz, Urn 2={:1.0f}oz, {:0.1f}, {:0.1f}'.format(weight[0],weight[1],temperature,humidity))
+            #print('Urn 1={:1.0f}oz, Urn 2={:1.0f}oz, {:0.1f}, {:0.1f}'.format(weight[0],weight[1],temperature,humidity))
             #print 'Urn 1=', oz, 'oz, Urn 2=', oz2, 'oz', ('{0:0.1f}, {1:0.1f}'.format(temperature, humidity))
-            time.sleep(.5)
+            time.sleep(5)
         except (KeyboardInterrupt, SystemExit):
             cleanAndExit()
 
