@@ -6,6 +6,8 @@ import sys
 from hx711 import HX711
 import json
 import pprint
+import argparse
+import sys
 
 pp = pprint.PrettyPrinter(indent=4)
 
@@ -24,7 +26,33 @@ def initializeHX(dout,pd_sck):
     return hxSensor
 
 def main():
-    hxSensors = [initializeHX(20,21), initializeHX(5,6)]
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--tare", help="Switch to generate and store scale tare")
+    parser.parse_args()
+    hxSensors = [initializeHX(20, 21), initializeHX(5, 6)]
+
+    sensorSettings = {}
+    if (args.tare):
+        i=0
+        for hx in hxSensors:
+            hxKey = 'hx{}'.format(i)
+            sensorSettings[hxKey]['offset'] = hx.offset
+            sensorSettings[hxKey]['REFERENCE_UNIT'] = hx.REFERENCE_UNIT
+            i++
+        with open('settings.json', 'w') as settings:
+            json.dump(sensorSettings, outfile)
+            settings.close()
+            sys.exit(0)
+    else:
+        with open('settings.json', 'r') as settings:
+            sensorSettings = json.load(settings)
+            settings.close()
+        i = 0
+        for hx in hxSensors:
+            hxKey = 'hx{}'.format(i)
+            hx.set_offset(sensorSettings[hxKey]['offset'])
+            hx.set_reference_unit(sensorSettings[hxKey]['REFERENCE_UNIT'])
+
     climSensor = Adafruit_DHT.DHT11
     while True:
         weight = []
