@@ -156,7 +156,7 @@ class HX711:
     def get_offset(self):
         return self.OFFSET
     
-    def get_reference_unit(self, reference_unit):
+    def get_reference_unit(self):
         return self.REFERENCE_UNIT
 
     # HX711 datasheet states that setting the PDA_CLOCK pin on high for >60 microseconds would power off the chip.

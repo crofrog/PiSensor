@@ -37,7 +37,7 @@ def main():
         for hx in hxSensors:
             hxKey = 'hx{}'.format(i)
             sensorSettings.update({
-                hxkey: {
+                hxKey: {
                     'offset': hx.get_offset(),
                     'REFERENCE_UNIT': hx.get_reference_unit()
                 }
